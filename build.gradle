@@ -1,0 +1,38 @@
+buildscript {
+    ext {
+        kotlin_version = '1.3.72'
+    }
+    repositories {
+        maven{ url'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven{ url'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+        google()
+    }
+
+    def androidGradle = "com.android.tools.build:gradle:4.0.0"
+    def kotlinGradle = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72"
+    def daggerGradle = "com.google.dagger:hilt-android-gradle-plugin:2.36"
+
+    dependencies {
+        classpath androidGradle
+        classpath kotlinGradle
+        classpath daggerGradle
+    }
+}
+
+allprojects {
+    repositories {
+        maven{ url'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven{ url'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+        google()
+        maven { url "https://jitpack.io" }
+    }
+
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+        options.addStringOption('encoding', 'UTF-8')
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

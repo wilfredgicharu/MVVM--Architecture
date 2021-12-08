@@ -1,0 +1,105 @@
+plugins {
+    id "com.github.qingmei2.plugin"
+    id "com.android.application"
+    id "kotlin-android"
+    id "kotlin-android-extensions"
+    id "kotlin-kapt"
+    id "dagger.hilt.android.plugin"
+    id "com.google.protobuf" version "0.8.12"
+}
+
+import com.github.qingmei2.plugin.*
+
+android {
+    compileSdkVersion BuildVersions.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.qingmei2.sample"
+        minSdkVersion BuildVersions.minSdkVersion
+        targetSdkVersion BuildVersions.targetSdkVersion
+        versionCode BuildVersions.versionCode
+        versionName BuildVersions.versionName
+
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        Properties properties = new Properties()
+
+        final File propertiesFile = project.rootProject.file('local.properties')
+        if (propertiesFile != null && propertiesFile.exists()) {
+            properties.load(propertiesFile.newDataInputStream())
+            buildConfigField "String", "USER_ACCESS_TOKEN", properties.getProperty("USER_ACCESS_TOKEN")
+        } else {
+            // add this line just for passing CI.
+            buildConfigField "String", "USER_ACCESS_TOKEN", "\"TODO: set token at local.properties\""
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':architecture-core')
+    implementation project(':module_protobuf')
+
+    implementation Dependencies.appcompat
+    implementation Dependencies.recyclerview
+    implementation Dependencies.materialDesign
+    implementation Dependencies.constraintlayout
+    implementation Dependencies.flexbox
+    implementation Dependencies.swiperefreshlayout
+
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'com.cpacm:floatingmusicmenu:1.0.0'
+
+    implementation 'com.facebook.stetho:stetho:1.5.1'
+
+    debugImplementation Dependencies.leakCanaryDebug
+    debugImplementation Dependencies.leakCanaryDebugSupport
+    releaseImplementation Dependencies.leakCanaryRelease
+
+    kapt Dependencies.glideCompiler
+    kapt Dependencies.roomCompiler
+    kapt Dependencies.lifecycleCompiler
+
+    implementation Dependencies.daggerHilt
+    kapt Dependencies.daggerHiltCompiler
+
+    testImplementation Dependencies.junit4
+
+    androidTestImplementation Dependencies.espresso
+    androidTestImplementation Dependencies.espressoContrib
+    androidTestImplementation Dependencies.espressoIdlingResource
+    androidTestImplementation Dependencies.testRunner
+    androidTestImplementation Dependencies.testRules
+    androidTestImplementation Dependencies.benchmark
+
+    androidTestImplementation Dependencies.daggerHiltTest
+    kaptAndroidTest Dependencies.daggerHiltCompiler
+}
+
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas".toString())
+    }
+}
